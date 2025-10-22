@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Focus Timer & Frequencies</title>
+    <link href="css/style.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4A90E2",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121212",
+                        "secondary-dark": "#1e1e1e",
+                        "text-main": "#FFFFFF",
+                        "text-secondary": "#E0E0E0",
+                        "text-muted": "#888888"
+                    },
+                    fontFamily: {
+                        display: ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main flex flex-col min-h-screen p-4">
+<div class="w-full max-w-5xl mx-auto flex flex-col flex-1 gap-8">
+    <header class="flex flex-col gap-2 text-center">
+        <p class="uppercase tracking-[0.4em] text-xs text-text-muted">Mindful Focus</p>
+        <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">Breath, Time & Frequency Studio</h1>
+        <p class="text-text-muted text-sm md:text-base max-w-2xl mx-auto">
+            Start your session, glide through solfeggio frequencies, and keep track of the time that boosts your focus.
+        </p>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Timer -->
+        <section id="timer-section" class="flex flex-col gap-6 rounded-2xl bg-secondary-dark/80 backdrop-blur px-6 py-6 shadow-lg border border-white/5 relative">
+            <div class="flex items-start justify-between gap-4 timer-fullscreen-hidden">
+                <div>
+                    <h2 class="text-2xl font-semibold tracking-tight">Timer</h2>
+                    <p class="text-text-muted text-sm mt-1">Choose between countdown, stopwatch, or the live clock view.</p>
+                </div>
+                <button id="fullscreen-toggle" class="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-text-secondary bg-white/5 hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-xl">fullscreen</span>
+                    <span class="fullscreen-label">Enter fullscreen</span>
+                </button>
+            </div>
+
+            <div class="flex px-1 py-1 w-full max-w-sm bg-background-dark/40 rounded-xl border border-white/10 timer-fullscreen-hidden">
+                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
+                    <span>Countdown</span>
+                    <input checked class="sr-only timer-type-input" name="timer-type" type="radio" value="countdown"/>
+                </label>
+                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
+                    <span>Stopwatch</span>
+                    <input class="sr-only timer-type-input" name="timer-type" type="radio" value="stopwatch"/>
+                </label>
+                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
+                    <span>Clock</span>
+                    <input class="sr-only timer-type-input" name="timer-type" type="radio" value="clock"/>
+                </label>
+            </div>
+
+            <div class="flex gap-4 justify-center timer-display-row">
+                <div class="timer-display-box">
+                    <p class="timer-value" id="timer-hours">00</p>
+                    <p class="timer-label">Hours</p>
+                </div>
+                <div class="timer-display-box">
+                    <p class="timer-value" id="timer-minutes">25</p>
+                    <p class="timer-label">Minutes</p>
+                </div>
+                <div class="timer-display-box">
+                    <p class="timer-value" id="timer-seconds">00</p>
+                    <p class="timer-label">Seconds</p>
+                </div>
+            </div>
+
+            <div id="timer-controls" class="flex flex-wrap justify-center gap-4 timer-fullscreen-hidden">
+                <button id="timer-toggle" class="primary-btn min-w-[140px]">
+                    Start
+                </button>
+                <button id="timer-reset" class="secondary-btn min-w-[140px]">
+                    Reset
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-3 mt-auto timer-fullscreen-hidden">
+                <div class="flex items-center justify-between gap-4 text-xs text-text-muted">
+                    <span>Preset duration</span>
+                    <div class="flex items-center gap-2 text-text-secondary">
+                        <button id="preset-pomodoro" class="preset-btn">25 min</button>
+                        <button id="preset-short-break" class="preset-btn">5 min</button>
+                        <button id="preset-long-break" class="preset-btn">15 min</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-[0.2em] text-text-muted">Intent</span>
+                        <span class="text-sm text-text-secondary">Pick a frequency to step into focus.</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-text-muted" for="countdown-minutes">Custom minutes</label>
+                        <input id="countdown-minutes" type="number" min="1" max="999" value="25" class="w-16 bg-background-dark text-center text-sm rounded-lg border border-white/10 py-1 focus:outline-none focus:ring-2 focus:ring-primary"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fullscreen-media-controls timer-fullscreen-only">
+                <button id="fullscreen-prev" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Previous track">
+                    <span class="material-symbols-outlined text-lg">skip_previous</span>
+                </button>
+                <button id="fullscreen-play" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Play or pause">
+                    <span id="fullscreen-play-icon" class="material-symbols-outlined text-xl">play_arrow</span>
+                </button>
+                <button id="fullscreen-next" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Next track">
+                    <span class="material-symbols-outlined text-lg">skip_next</span>
+                </button>
+            </div>
+        </section>
+
+
+        <section class="flex flex-col gap-6 rounded-2xl bg-secondary-dark/80 backdrop-blur px-6 py-6 shadow-lg border border-white/5">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-2xl font-semibold tracking-tight">Solfeggio Frequencies</h2>
+                <p class="text-text-muted text-sm">Move through the list and settle into calming solfeggio mp3 sessions.</p>
+            </div>
+            <div class="rounded-2xl bg-background-dark/60 border border-white/10 px-5 py-5 flex flex-col gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex-1 overflow-hidden">
+                        <p id="track-title" class="text-lg font-semibold text-text-secondary truncate">No frequency selected</p>
+                        <p id="track-subtitle" class="text-sm text-text-muted truncate">Choose a track from the list to begin.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="prev-track" class="circle-btn">
+                            <span class="material-symbols-outlined text-2xl">skip_previous</span>
+                        </button>
+                        <button id="play-toggle" class="circle-btn circle-btn-primary size-12">
+                            <span id="play-toggle-icon" class="material-symbols-outlined text-3xl">play_arrow</span>
+                        </button>
+                        <button id="next-track" class="circle-btn">
+                            <span class="material-symbols-outlined text-2xl">skip_next</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="mute-toggle" type="button" class="flex items-center justify-center rounded-full size-10 text-text-muted hover:bg-white/10 transition-colors">
+                        <span id="mute-toggle-icon" class="material-symbols-outlined text-xl">volume_up</span>
+                    </button>
+                    <input id="volume-control" type="range" min="0" max="1" step="0.01" value="0.7" class="range-input flex-1"/>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <input id="progress-control" type="range" min="0" max="100" value="0" class="range-input w-full"/>
+                    <div class="flex items-center justify-between text-xs text-text-muted">
+                        <span id="current-time">0:00</span>
+                        <span id="total-duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <h3 class="text-sm uppercase tracking-[0.35em] text-text-muted">Playlist</h3>
+                <ul id="playlist" class="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2">
+                </ul>
+            </div>
+        </section>
+    </main>
+</div>
+
+<audio id="audio-element" class="hidden" preload="metadata"></audio>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
