@@ -35,6 +35,8 @@ export function initTimer() {
     const timerControls = selectElement("timer-controls");
     const countdownMinutesInput = selectElement("countdown-minutes");
     const fullscreenToggleBtn = selectElement("fullscreen-toggle");
+    const fullscreenTimerToggleBtn = selectElement("fullscreen-timer-toggle");
+    const fullscreenTimerIcon = selectElement("fullscreen-timer-icon");
 
     if (
         !timerHoursEl ||
@@ -111,11 +113,25 @@ export function initTimer() {
         }
     }
 
+    function updateTimerToggleVisuals() {
+        const isClock = state.mode === "clock";
+        const label = isClock ? "Start" : state.running ? "Pause" : "Start";
+        timerToggleBtn.textContent = label;
+        if (fullscreenTimerIcon) {
+            fullscreenTimerIcon.textContent = state.running ? "pause" : "play_arrow";
+        }
+        if (fullscreenTimerToggleBtn) {
+            fullscreenTimerToggleBtn.disabled = isClock;
+            fullscreenTimerToggleBtn.classList.toggle("timer-controls-disabled", isClock);
+            fullscreenTimerToggleBtn.setAttribute("aria-pressed", state.running ? "true" : "false");
+        }
+    }
+
     function stopTimer({ keepButtonLabel = false } = {}) {
         clearIntervalIfNeeded();
         state.running = false;
         if (!keepButtonLabel) {
-            timerToggleBtn.textContent = "Start";
+            updateTimerToggleVisuals();
         }
     }
 
@@ -159,7 +175,7 @@ export function initTimer() {
         }
 
         state.running = true;
-        timerToggleBtn.textContent = "Pause";
+        updateTimerToggleVisuals();
 
         clearIntervalIfNeeded();
         state.intervalId = setInterval(() => {
@@ -215,14 +231,7 @@ export function initTimer() {
         timerToggleBtn.disabled = isClock;
         timerResetBtn.disabled = isClock;
         timerControls?.classList.toggle("timer-controls-disabled", isClock);
-
-        if (isClock) {
-            timerToggleBtn.textContent = "Start";
-        } else if (state.running) {
-            timerToggleBtn.textContent = "Pause";
-        } else {
-            timerToggleBtn.textContent = "Start";
-        }
+        updateTimerToggleVisuals();
 
         timerSection.classList.toggle("timer-mode-clock", isClock);
     }
@@ -253,6 +262,17 @@ export function initTimer() {
     }
 
     timerToggleBtn?.addEventListener("click", () => {
+        if (state.mode === "clock") {
+            return;
+        }
+        if (state.running) {
+            pauseTimer();
+        } else {
+            startTimer();
+        }
+    });
+
+    fullscreenTimerToggleBtn?.addEventListener("click", () => {
         if (state.mode === "clock") {
             return;
         }

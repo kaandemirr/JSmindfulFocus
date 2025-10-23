@@ -299,6 +299,14 @@ input:disabled {
     display: inline-flex;
 }
 
+#timer-section.fullscreen-active .fullscreen-timer-control {
+    position: absolute;
+    bottom: clamp(1.5rem, 6vh, 3rem);
+    left: clamp(1.5rem, 6vw, 3rem);
+    display: flex;
+    align-items: center;
+}
+
 body.fullscreen-timer {
     background: #000;
     background-image: none;
