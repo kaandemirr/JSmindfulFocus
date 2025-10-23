@@ -91,6 +91,30 @@ export function initMusicPlayer() {
 
     const getCurrentTrack = () => playlist[currentTrackIndex];
 
+    function tryResumeYouTubePlayback() {
+        if (!pendingYouTubePlay || !youtubePlayer || !youtubeReady) {
+            return;
+        }
+        try {
+            youtubePlayer.playVideo();
+            pendingYouTubePlay = false;
+        } catch (error) {
+            console.warn("YouTube resume attempt failed", error);
+        }
+    }
+
+    function scheduleYouTubeResume() {
+        if (!pendingYouTubePlay) {
+            return;
+        }
+        const resumeHandler = () => {
+            tryResumeYouTubePlayback();
+        };
+        ["touchstart", "click", "keydown"].forEach((eventName) => {
+            document.addEventListener(eventName, resumeHandler, { once: true, passive: true });
+        });
+    }
+
     function loadFromStorage() {
         const stored = loadStoredTracks();
         const combined = [...baseTracks];
@@ -143,10 +167,10 @@ export function initMusicPlayer() {
             const active = itemIndex === currentTrackIndex;
             item.classList.toggle("active", active);
             if (icon) {
-                if (itemType === "youtube") {
-                    icon.textContent = active ? "equalizer" : "play_arrow";
+                if (active) {
+                    icon.textContent = isPlaying ? "equalizer" : "play_arrow";
                 } else {
-                    icon.textContent = active ? (isPlaying ? "equalizer" : "play_arrow") : "play_arrow";
+                    icon.textContent = "play_arrow";
                 }
             }
         });
@@ -224,9 +248,8 @@ export function initMusicPlayer() {
                 stopYouTubeProgressTimer();
                 break;
             case YT.PlayerState.CUED:
-                if (pendingYouTubePlay && youtubePlayer) {
-                    youtubePlayer.playVideo();
-                }
+                tryResumeYouTubePlayback();
+                scheduleYouTubeResume();
                 break;
             case YT.PlayerState.ENDED:
                 if (isReplayEnabled) {
@@ -282,6 +305,7 @@ export function initMusicPlayer() {
                                         event.target.playVideo();
                                     } catch (playError) {
                                         console.warn("YouTube autoplay blocked", playError);
+                                        scheduleYouTubeResume();
                                     }
                                 }
                             },
@@ -292,12 +316,14 @@ export function initMusicPlayer() {
                     if (autoPlay) {
                         youtubePlayer.loadVideoById(track.videoId);
                         pendingYouTubePlay = true;
+                        scheduleYouTubeResume();
                     } else {
                         youtubePlayer.cueVideoById(track.videoId);
                         pendingYouTubePlay = false;
                     }
                 } else {
                     pendingYouTubeLoad = { videoId: track.videoId, autoPlay };
+                    scheduleYouTubeResume();
                 }
             })
             .catch((error) => {
@@ -356,6 +382,9 @@ export function initMusicPlayer() {
         currentTimeEl.textContent = "0:00";
         totalDurationEl.textContent = "--:--";
         setMuteIcon();
+        if (autoPlay) {
+            scheduleYouTubeResume();
+        }
     }
 
     function loadTrack(index, autoPlay = false) {
@@ -373,6 +402,28 @@ export function initMusicPlayer() {
         } else {
             playAudioTrack(track, shouldAutoPlay);
         }
+    }
+
+    function removeTrackAt(index) {
+        if (index < 0 || index >= playlist.length) {
+            return;
+        }
+        const track = playlist[index];
+        const wasCurrent = index === currentTrackIndex;
+        const shouldResume = wasCurrent ? isPlaying : false;
+        playlist.splice(index, 1);
+        if (!playlist.length) {
+            playlist = [...baseTracks];
+            currentTrackIndex = 0;
+            loadTrack(0, false);
+        } else if (wasCurrent) {
+            const nextIndex = index >= playlist.length ? playlist.length - 1 : index;
+            loadTrack(nextIndex, shouldResume);
+        } else if (index < currentTrackIndex) {
+            currentTrackIndex -= 1;
+        }
+        saveUserTracks();
+        renderPlaylist();
     }
 
     function renderPlaylist() {
@@ -404,12 +455,31 @@ export function initMusicPlayer() {
             subtitleEl.textContent = track.subtitle ?? "";
             infoWrapper.appendChild(subtitleEl);
 
+            const actions = document.createElement("div");
+            actions.className = "playlist-action-group";
+
             const icon = document.createElement("span");
             icon.className = "material-symbols-outlined icon text-xl";
-            icon.textContent = track.type === "youtube" ? "play_arrow" : "play_arrow";
+            icon.textContent = "play_arrow";
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.type = "button";
+            deleteBtn.className = "playlist-delete-btn";
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
+            if (track.type !== "youtube") {
+                deleteBtn.disabled = true;
+            } else {
+                deleteBtn.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    removeTrackAt(index);
+                });
+            }
+
+            actions.appendChild(icon);
+            actions.appendChild(deleteBtn);
 
             item.appendChild(infoWrapper);
-            item.appendChild(icon);
+            item.appendChild(actions);
 
             item.addEventListener("click", () => {
                 const wasPlaying = isPlaying;

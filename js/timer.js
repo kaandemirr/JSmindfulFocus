@@ -80,8 +80,7 @@ export function initTimer() {
     };
 
     const reminderManager = createReminderManager({
-        button: reminderToggleBtn,
-        getElapsedSeconds
+        button: reminderToggleBtn
     });
     let pseudoFullscreenActive = false;
 
@@ -182,16 +181,6 @@ export function initTimer() {
         }
     }
 
-    function getElapsedSeconds() {
-        if (state.mode === "countdown") {
-            return state.countdownTotal - state.countdownRemaining;
-        }
-        if (state.mode === "stopwatch") {
-            return state.stopwatchElapsed;
-        }
-        return 0;
-    }
-
     function updateTimerToggleVisuals() {
         const isClock = state.mode === "clock";
         const label = isClock ? "Start" : state.running ? "Pause" : "Start";
@@ -219,6 +208,7 @@ export function initTimer() {
         stopTimer();
         timerSection.classList.add("animate-complete");
         setTimeout(() => timerSection.classList.remove("animate-complete"), 1200);
+        reminderManager.onTimerComplete();
     }
 
     function tickCountdown() {
@@ -231,13 +221,11 @@ export function initTimer() {
             }
         }
         renderCountdown();
-        reminderManager.onTimerTick({ running: state.running });
     }
 
     function tickStopwatch() {
         state.stopwatchElapsed += 1;
         renderStopwatch();
-        reminderManager.onTimerTick({ running: state.running });
     }
 
     function startClockLoop() {
@@ -260,7 +248,6 @@ export function initTimer() {
         state.running = true;
         updateTimerToggleVisuals();
         reminderManager.onTimerStart();
-        reminderManager.onTimerTick({ running: state.running });
 
         clearIntervalIfNeeded();
         state.intervalId = setInterval(() => {

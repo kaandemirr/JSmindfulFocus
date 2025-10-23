@@ -129,22 +129,23 @@
                 </div>
             </div>
 
-            <div class="fullscreen-media-controls timer-fullscreen-only">
-                <button id="fullscreen-prev" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Previous track">
-                    <span class="material-symbols-outlined text-lg">skip_previous</span>
-                </button>
-                <button id="fullscreen-play" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Play or pause">
-                    <span id="fullscreen-play-icon" class="material-symbols-outlined text-xl">play_arrow</span>
-                </button>
-                <button id="fullscreen-next" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Next track">
-                    <span class="material-symbols-outlined text-lg">skip_next</span>
-                </button>
-            </div>
-
-            <div class="fullscreen-timer-control timer-fullscreen-only">
-                <button id="fullscreen-timer-toggle" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Start or pause timer">
-                    <span id="fullscreen-timer-icon" class="material-symbols-outlined text-xl">play_arrow</span>
-                </button>
+            <div class="fullscreen-control-bar timer-fullscreen-only">
+                <div class="fullscreen-media-controls">
+                    <button id="fullscreen-prev" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Previous track">
+                        <span class="material-symbols-outlined text-lg">skip_previous</span>
+                    </button>
+                    <button id="fullscreen-play" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Play or pause">
+                        <span id="fullscreen-play-icon" class="material-symbols-outlined text-xl">play_arrow</span>
+                    </button>
+                    <button id="fullscreen-next" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Next track">
+                        <span class="material-symbols-outlined text-lg">skip_next</span>
+                    </button>
+                </div>
+                <div class="fullscreen-timer-control">
+                    <button id="fullscreen-timer-toggle" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Start or pause timer">
+                        <span id="fullscreen-timer-icon" class="material-symbols-outlined text-xl">play_arrow</span>
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -157,8 +158,9 @@
                         <p class="text-text-muted text-sm max-w-lg">Move through the list and settle into calming solfeggio mp3 sessions.</p>
                     </div>
                     <button id="reminder-toggle" class="reminder-btn group ml-auto shrink-0" type="button" aria-pressed="false" aria-label="Toggle reminder">
-                        <span class="material-symbols-outlined text-lg">notifications</span>
-                        <span class="reminder-tooltip">Reminder for each 10 minutes</span>
+                        <span class="material-symbols-outlined text-base">notifications</span>
+                        <span class="material-symbols-outlined text-base" data-reminder-toggle-icon>toggle_off</span>
+                        <span class="reminder-tooltip">Play sound when timer completes</span>
                     </button>
                 </div>
             </div>
