@@ -1,3 +1,5 @@
+import { createReminderManager } from "./timer/reminder.js";
+
 const SECOND = 1000;
 const MAX_COUNTDOWN_MINUTES = 999;
 
@@ -37,6 +39,7 @@ export function initTimer() {
     const fullscreenToggleBtn = selectElement("fullscreen-toggle");
     const fullscreenTimerToggleBtn = selectElement("fullscreen-timer-toggle");
     const fullscreenTimerIcon = selectElement("fullscreen-timer-icon");
+    const reminderToggleBtn = selectElement("reminder-toggle");
 
     if (
         !timerHoursEl ||
@@ -45,7 +48,8 @@ export function initTimer() {
         !timerToggleBtn ||
         !timerResetBtn ||
         !countdownMinutesInput ||
-        !fullscreenToggleBtn
+        !fullscreenToggleBtn ||
+        !reminderToggleBtn
     ) {
         return;
     }
@@ -74,6 +78,71 @@ export function initTimer() {
         running: false,
         intervalId: null
     };
+
+    const reminderManager = createReminderManager({
+        button: reminderToggleBtn,
+        getElapsedSeconds
+    });
+    let pseudoFullscreenActive = false;
+
+    function getFullscreenElement() {
+        return (
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            null
+        );
+    }
+
+    function isNativeFullscreenActive() {
+        return Boolean(getFullscreenElement());
+    }
+
+    async function requestNativeFullscreen(target) {
+        if (!target) {
+            return false;
+        }
+        const method =
+            target.requestFullscreen ||
+            target.webkitRequestFullscreen ||
+            target.mozRequestFullScreen ||
+            target.msRequestFullscreen;
+        if (!method) {
+            return false;
+        }
+        try {
+            const result = method.call(target);
+            if (result && typeof result.then === "function") {
+                await result;
+            }
+            return true;
+        } catch (error) {
+            console.warn("Fullscreen request failed for target", error);
+            return false;
+        }
+    }
+
+    async function exitNativeFullscreen() {
+        const method =
+            document.exitFullscreen ||
+            document.webkitExitFullscreen ||
+            document.mozCancelFullScreen ||
+            document.msExitFullscreen;
+        if (!method) {
+            return false;
+        }
+        try {
+            const result = method.call(document);
+            if (result && typeof result.then === "function") {
+                await result;
+            }
+            return true;
+        } catch (error) {
+            console.warn("Fullscreen exit failed", error);
+            return false;
+        }
+    }
 
     function renderCountdown() {
         const { hours, minutes, seconds } = formatTimerParts(state.countdownRemaining);
@@ -113,6 +182,16 @@ export function initTimer() {
         }
     }
 
+    function getElapsedSeconds() {
+        if (state.mode === "countdown") {
+            return state.countdownTotal - state.countdownRemaining;
+        }
+        if (state.mode === "stopwatch") {
+            return state.stopwatchElapsed;
+        }
+        return 0;
+    }
+
     function updateTimerToggleVisuals() {
         const isClock = state.mode === "clock";
         const label = isClock ? "Start" : state.running ? "Pause" : "Start";
@@ -130,6 +209,7 @@ export function initTimer() {
     function stopTimer({ keepButtonLabel = false } = {}) {
         clearIntervalIfNeeded();
         state.running = false;
+        reminderManager.onTimerStop();
         if (!keepButtonLabel) {
             updateTimerToggleVisuals();
         }
@@ -151,11 +231,13 @@ export function initTimer() {
             }
         }
         renderCountdown();
+        reminderManager.onTimerTick({ running: state.running });
     }
 
     function tickStopwatch() {
         state.stopwatchElapsed += 1;
         renderStopwatch();
+        reminderManager.onTimerTick({ running: state.running });
     }
 
     function startClockLoop() {
@@ -163,6 +245,7 @@ export function initTimer() {
         renderClock();
         state.intervalId = setInterval(renderClock, SECOND);
         state.running = false;
+        updateTimerToggleVisuals();
     }
 
     function startTimer() {
@@ -176,6 +259,8 @@ export function initTimer() {
 
         state.running = true;
         updateTimerToggleVisuals();
+        reminderManager.onTimerStart();
+        reminderManager.onTimerTick({ running: state.running });
 
         clearIntervalIfNeeded();
         state.intervalId = setInterval(() => {
@@ -202,6 +287,7 @@ export function initTimer() {
         } else {
             renderClock();
         }
+        reminderManager.onReset();
     }
 
     function setCountdownMinutes(minutes) {
@@ -214,6 +300,7 @@ export function initTimer() {
         state.countdownRemaining = state.countdownTotal;
         countdownMinutesInput.value = clamped;
         renderCountdown();
+        reminderManager.onReset();
     }
 
     function applyModeUI() {
@@ -257,6 +344,7 @@ export function initTimer() {
             clearIntervalIfNeeded();
         }
 
+        reminderManager.onModeChange();
         applyModeUI();
         updateTimerDisplay();
     }
@@ -329,6 +417,18 @@ export function initTimer() {
     function toggleFullscreenState(isFullscreen) {
         timerSection.classList.toggle("fullscreen-active", isFullscreen);
         document.body.classList.toggle("fullscreen-timer", isFullscreen);
+        document.documentElement.classList.toggle("pseudo-fullscreen-root", pseudoFullscreenActive && isFullscreen);
+        document.body.classList.toggle("pseudo-fullscreen-body", pseudoFullscreenActive && isFullscreen);
+        if (isFullscreen) {
+            timerSection.scrollIntoView({ behavior: "instant", block: "center" });
+        }
+        if (window.screen?.orientation) {
+            if (isFullscreen && typeof window.screen.orientation.lock === "function") {
+                window.screen.orientation.lock("landscape").catch(() => undefined);
+            } else if (!isFullscreen && typeof window.screen.orientation.unlock === "function") {
+                window.screen.orientation.unlock();
+            }
+        }
         const icon = fullscreenToggleBtn?.querySelector(".material-symbols-outlined");
         const label = fullscreenToggleBtn?.querySelector(".fullscreen-label");
 
@@ -345,24 +445,78 @@ export function initTimer() {
         }
     }
 
+    async function enterTimerFullscreen() {
+        const success =
+            (await requestNativeFullscreen(timerSection)) ||
+            (await requestNativeFullscreen(document.documentElement)) ||
+            (await requestNativeFullscreen(document.body));
+        if (success) {
+            pseudoFullscreenActive = false;
+            toggleFullscreenState(true);
+        } else {
+            pseudoFullscreenActive = true;
+            toggleFullscreenState(true);
+        }
+    }
+
+    async function exitTimerFullscreen() {
+        if (pseudoFullscreenActive) {
+            pseudoFullscreenActive = false;
+            toggleFullscreenState(false);
+            return;
+        }
+        const active = isNativeFullscreenActive();
+        if (active) {
+            const success = await exitNativeFullscreen();
+            if (!success) {
+                console.warn("Could not exit fullscreen via native API");
+            }
+        }
+        toggleFullscreenState(false);
+    }
+
     fullscreenToggleBtn?.addEventListener("click", async () => {
-        const isCurrentlyFullscreen = document.fullscreenElement === timerSection;
+        const active = isNativeFullscreenActive() || pseudoFullscreenActive;
         try {
-            if (isCurrentlyFullscreen) {
-                if (document.exitFullscreen) {
-                    await document.exitFullscreen();
-                }
-            } else if (timerSection.requestFullscreen) {
-                await timerSection.requestFullscreen();
+            if (active) {
+                await exitTimerFullscreen();
+            } else {
+                await enterTimerFullscreen();
             }
         } catch (error) {
-            console.error("Fullscreen request failed:", error);
+            console.error("Fullscreen toggle failed:", error);
         }
     });
 
-    document.addEventListener("fullscreenchange", () => {
-        const isFullscreen = document.fullscreenElement === timerSection;
-        toggleFullscreenState(isFullscreen);
+    let lastTapTime = 0;
+    timerSection.addEventListener("touchend", async (event) => {
+        const now = Date.now();
+        if (now - lastTapTime < 350) {
+            event.preventDefault();
+            const active = isNativeFullscreenActive() || pseudoFullscreenActive;
+            if (active) {
+                await exitTimerFullscreen();
+            } else {
+                await enterTimerFullscreen();
+            }
+        }
+        lastTapTime = now;
+    });
+
+    const fullscreenEvents = [
+        "fullscreenchange",
+        "webkitfullscreenchange",
+        "mozfullscreenchange",
+        "MSFullscreenChange"
+    ];
+    fullscreenEvents.forEach((eventName) => {
+        document.addEventListener(eventName, () => {
+            if (pseudoFullscreenActive) {
+                return;
+            }
+            const active = isNativeFullscreenActive();
+            toggleFullscreenState(active);
+        });
     });
 
     applyModeUI();
