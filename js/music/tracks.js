@@ -6,64 +6,64 @@ export const baseTracks = [
         id: "hz396",
         type: "local",
         source: "local",
-        title: "396 Hz - Release Fear",
-        subtitle: "Deep relaxation and emotional cleansing",
+        title: "396 Hz",
+        subtitle: "Tone · solfeggio scale",
         src: "mp3/hz396.mp3"
     },
     {
         id: "hz369",
         type: "local",
         source: "local",
-        title: "369 Hz - Tesla Sequence",
-        subtitle: "Ignites flow and creativity",
+        title: "369 Hz",
+        subtitle: "Tone",
         src: "mp3/hz369.mp3"
     },
     {
         id: "hz432",
         type: "local",
         source: "local",
-        title: "432 Hz - Natural Harmony",
-        subtitle: "Realigns you with the rhythm of nature",
+        title: "432 Hz",
+        subtitle: "Tone · A = 432 tuning",
         src: "mp3/hz432.mp3"
     },
     {
         id: "hz639",
         type: "local",
         source: "local",
-        title: "639 Hz - Heart Connection",
-        subtitle: "Heart-centered harmony and compassion",
+        title: "639 Hz",
+        subtitle: "Tone · solfeggio scale",
         src: "mp3/hz639.mp3"
     },
     {
         id: "hz963",
         type: "local",
         source: "local",
-        title: "963 Hz - Pure Consciousness",
-        subtitle: "Opens the doorway to intuition and awareness",
+        title: "963 Hz",
+        subtitle: "Tone · solfeggio scale",
         src: "mp3/hz963.mp3"
     },
     {
         id: "hz3",
         type: "local",
         source: "local",
-        title: "3 Hz - Deep Delta",
-        subtitle: "Deep sleep and subconscious relaxation",
+        title: "3 Hz",
+        subtitle: "Beat · delta range",
         src: "mp3/hz3.mp3"
     },
     {
         id: "hz6",
         type: "local",
         source: "local",
-        title: "6 Hz - Theta Rhythms",
-        subtitle: "Perfect for inspiration and visualization",
+        title: "6 Hz",
+        subtitle: "Beat · theta range",
         src: "mp3/hz6.mp3"
     },
     {
         id: "hz9",
         type: "local",
         source: "local",
-        title: "9 Hz - Alpha Awakening",
-        subtitle: "Gentle energy and light focus",
+        title: "9 Hz",
+        subtitle: "Beat · alpha range",
         src: "mp3/hz9.mp3"
     }
 ];

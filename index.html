@@ -1,253 +1,149 @@
-<!DOCTYPE html>
-<html class="dark" lang="en">
+<!doctype html>
+<html lang="en" data-phase="focus" data-tool="pomodoro">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Focus Timer & Frequencies</title>
-    <link href="css/style.css" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#4A90E2",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#121212",
-                        "secondary-dark": "#1e1e1e",
-                        "text-main": "#FFFFFF",
-                        "text-secondary": "#E0E0E0",
-                        "text-muted": "#888888"
-                    },
-                    fontFamily: {
-                        display: ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    }
-                }
-            }
-        };
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings:
-            'FILL' 1,
-            'wght' 400,
-            'GRAD' 0,
-            'opsz' 24
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Focus Timer</title>
+<meta name="description" content="A focus timer with its own soundtrack: Pomodoro rounds, a stopwatch and a clock, with frequency tones or your own YouTube tracks behind them.">
+<meta name="theme-color" content="#13110f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2313110f'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23e9a85b' stroke-width='2.5' stroke-dasharray='42 99' transform='rotate(-90 16 16)'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/big-shoulders-display-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-text-main flex flex-col min-h-screen p-4">
-<div class="w-full max-w-5xl mx-auto flex flex-col flex-1 gap-8">
-    <header class="flex flex-col gap-2 text-center">
-        <p class="uppercase tracking-[0.4em] text-xs text-text-muted">Mindful Focus</p>
-        <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">Breath, Time & Frequency Studio</h1>
-        <p class="text-text-muted text-sm md:text-base max-w-2xl mx-auto">
-            Start your session, glide through solfeggio frequencies, and keep track of the time that boosts your focus.
-        </p>
-    </header>
+<body>
 
-    <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Timer -->
-        <section id="timer-section" class="flex flex-col gap-6 rounded-2xl bg-secondary-dark/80 backdrop-blur px-6 py-6 shadow-lg border border-white/5 relative">
-            <div class="flex items-start justify-between gap-4 timer-fullscreen-hidden">
-                <div>
-                    <h2 class="text-2xl font-semibold tracking-tight">Timer</h2>
-                    <p class="text-text-muted text-sm mt-1">Choose between countdown, stopwatch, or the live clock view.</p>
-                </div>
-                <button id="fullscreen-toggle" class="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-text-secondary bg-white/5 hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-xl">fullscreen</span>
-                    <span class="fullscreen-label">Enter fullscreen</span>
-                </button>
-            </div>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7.5 5.5h3v13h-3zM13.5 5.5h3v13h-3z" fill="currentColor"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4v4h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l9 6-9 6z" fill="currentColor"/><path d="M18 6v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6l-9 6 9 6z" fill="currentColor"/><path d="M6 6v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 6l9 6-9 6z" fill="currentColor"/><path d="M18 6v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shrink" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="15" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 6h11M4 11h11M4 16h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M17 17.5V8l4-1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.2" cy="17.5" r="1.9" fill="currentColor"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20M7 21l-3-3 3-3M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+</svg>
 
-            <div class="flex px-1 py-1 w-full max-w-sm bg-background-dark/40 rounded-xl border border-white/10 timer-fullscreen-hidden">
-                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
-                    <span>Countdown</span>
-                    <input checked class="sr-only timer-type-input" name="timer-type" type="radio" value="countdown"/>
-                </label>
-                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
-                    <span>Stopwatch</span>
-                    <input class="sr-only timer-type-input" name="timer-type" type="radio" value="stopwatch"/>
-                </label>
-                <label class="flex cursor-pointer flex-1 items-center justify-center rounded-lg py-2 px-2 text-sm font-medium text-text-muted transition has-[:checked]:bg-background-dark has-[:checked]:text-text-secondary">
-                    <span>Clock</span>
-                    <input class="sr-only timer-type-input" name="timer-type" type="radio" value="clock"/>
-                </label>
-            </div>
+<header class="top">
+  <p class="mark" translate="no">Focus <em>Timer</em></p>
+  <nav class="tools" aria-label="Tool">
+    <button type="button" data-tool="pomodoro" aria-pressed="true">Pomodoro</button>
+    <button type="button" data-tool="stopwatch" aria-pressed="false">Stopwatch</button>
+    <button type="button" data-tool="clock" aria-pressed="false">Clock</button>
+  </nav>
+  <div class="top__end">
+    <p class="today" data-today></p>
+    <button class="icon-btn" type="button" data-open="settings" aria-label="Settings" title="Settings"><svg><use href="#i-settings"/></svg></button>
+    <button class="icon-btn" type="button" data-zen aria-label="Fullscreen (F)" title="Fullscreen (F)"><svg><use href="#i-expand"/></svg></button>
+  </div>
+</header>
 
-            <div class="flex gap-4 justify-center timer-display-row">
-                <div class="timer-display-box">
-                    <p class="timer-value" id="timer-hours">00</p>
-                    <p class="timer-label">Hours</p>
-                </div>
-                <div class="timer-display-box">
-                    <p class="timer-value" id="timer-minutes">25</p>
-                    <p class="timer-label">Minutes</p>
-                </div>
-                <div class="timer-display-box">
-                    <p class="timer-value" id="timer-seconds">00</p>
-                    <p class="timer-label">Seconds</p>
-                </div>
-            </div>
+<main class="stage" id="main">
+  <div class="breath" aria-hidden="true"><span></span></div>
+  <p class="phase"><span data-phase-label>Focus</span><span class="dots" data-dots></span></p>
+  <p class="time" data-time role="timer" aria-live="off">25:00</p>
+  <div class="hair" aria-hidden="true"><span data-progress></span></div>
+  <div class="controls">
+    <button class="btn btn--main" type="button" data-toggle><svg><use href="#i-play" data-toggle-icon/></svg><span data-toggle-label>Start</span></button>
+    <button class="btn btn--ghost" type="button" data-reset title="Reset (R)"><svg><use href="#i-reset"/></svg><span>Reset</span></button>
+    <button class="btn btn--ghost" type="button" data-skip title="Skip to the next phase (S)"><svg><use href="#i-skip"/></svg><span>Skip</span></button>
+  </div>
+  <div class="phases" role="group" aria-label="Phase">
+    <button type="button" data-set-phase="focus" aria-pressed="true">Focus</button>
+    <button type="button" data-set-phase="short" aria-pressed="false">Short break</button>
+    <button type="button" data-set-phase="long" aria-pressed="false">Long break</button>
+  </div>
+  <p class="sr" aria-live="polite" data-announce></p>
+</main>
 
-            <div id="timer-controls" class="flex flex-wrap justify-center gap-4 timer-fullscreen-hidden">
-                <button id="timer-toggle" class="primary-btn min-w-[140px]">
-                    Start
-                </button>
-                <button id="timer-reset" class="secondary-btn min-w-[140px]">
-                    Reset
-                </button>
-            </div>
+<section class="player" aria-label="Music">
+  <button class="icon-btn icon-btn--play" type="button" data-play aria-label="Play music (M)" title="Play music (M)"><svg><use href="#i-play" data-play-icon/></svg></button>
+  <div class="player__info">
+    <p class="player__title" data-track-title>396 Hz</p>
+    <p class="player__sub" data-track-sub>Tone</p>
+  </div>
+  <div class="player__nav">
+    <button class="icon-btn" type="button" data-prev aria-label="Previous track"><svg><use href="#i-prev"/></svg></button>
+    <button class="icon-btn" type="button" data-next aria-label="Next track (N)" title="Next track (N)"><svg><use href="#i-next"/></svg></button>
+  </div>
+  <div class="player__seek">
+    <span data-cur>0:00</span>
+    <input type="range" data-seek min="0" max="1000" value="0" step="1" aria-label="Position">
+    <span data-dur>0:00</span>
+  </div>
+  <button class="icon-btn" type="button" data-loop aria-pressed="false" aria-label="Repeat this track" title="Repeat this track"><svg><use href="#i-loop"/></svg></button>
+  <div class="player__vol">
+    <button class="icon-btn" type="button" data-mute aria-label="Mute" title="Mute"><svg><use href="#i-volume" data-mute-icon/></svg></button>
+    <input type="range" data-volume min="0" max="100" value="70" aria-label="Volume">
+  </div>
+  <button class="btn btn--ghost btn--small" type="button" data-open="library"><svg><use href="#i-library"/></svg><span>Library</span></button>
+  <div class="player__yt" data-yt-box hidden><div id="yt-player"></div></div>
+  <audio data-audio preload="none"></audio>
+</section>
 
-            <div class="flex flex-col gap-3 mt-auto timer-fullscreen-hidden">
-                <div class="flex items-center justify-between gap-4 text-xs text-text-muted">
-                    <span>Preset duration</span>
-                    <div class="flex items-center gap-2 text-text-secondary">
-                        <button id="preset-pomodoro" class="preset-btn">25 min</button>
-                        <button id="preset-short-break" class="preset-btn">5 min</button>
-                        <button id="preset-long-break" class="preset-btn">15 min</button>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3">
-                    <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-[0.2em] text-text-muted">Intent</span>
-                        <span class="text-sm text-text-secondary">Pick a frequency to step into focus.</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs text-text-muted" for="countdown-minutes">Custom minutes</label>
-                        <input id="countdown-minutes" type="number" min="1" max="999" value="25" class="w-16 bg-background-dark text-center text-sm rounded-lg border border-white/10 py-1 focus:outline-none focus:ring-2 focus:ring-primary"/>
-                    </div>
-                </div>
-            </div>
-
-            <div class="fullscreen-control-bar timer-fullscreen-only">
-                <div class="fullscreen-media-controls">
-                    <button id="fullscreen-prev" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Previous track">
-                        <span class="material-symbols-outlined text-lg">skip_previous</span>
-                    </button>
-                    <button id="fullscreen-play" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Play or pause">
-                        <span id="fullscreen-play-icon" class="material-symbols-outlined text-xl">play_arrow</span>
-                    </button>
-                    <button id="fullscreen-next" class="fullscreen-circle-btn fullscreen-skip-btn" type="button" aria-label="Next track">
-                        <span class="material-symbols-outlined text-lg">skip_next</span>
-                    </button>
-                </div>
-                <div class="fullscreen-timer-control">
-                    <button id="fullscreen-timer-toggle" class="fullscreen-circle-btn fullscreen-circle-btn-primary" type="button" aria-label="Start or pause timer">
-                        <span id="fullscreen-timer-icon" class="material-symbols-outlined text-xl">play_arrow</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-
-        <section class="flex flex-col gap-6 rounded-2xl bg-secondary-dark/80 backdrop-blur px-6 py-6 shadow-lg border border-white/5">
-            <div class="flex flex-col gap-2 relative">
-                <div class="reminder-row">
-                    <div class="flex flex-col gap-1">
-                        <h2 class="text-2xl font-semibold tracking-tight">Solfeggio Frequencies</h2>
-                        <p class="text-text-muted text-sm max-w-lg">Move through the list and settle into calming solfeggio mp3 sessions.</p>
-                    </div>
-                    <button id="reminder-toggle" class="reminder-btn group ml-auto shrink-0" type="button" aria-pressed="false" aria-label="Toggle reminder">
-                        <span class="material-symbols-outlined text-base">notifications</span>
-                        <span class="material-symbols-outlined text-base" data-reminder-toggle-icon>toggle_off</span>
-                        <span class="reminder-tooltip">Play sound when timer completes</span>
-                    </button>
-                </div>
-            </div>
-            <div class="rounded-2xl bg-background-dark/60 border border-white/10 px-5 py-5 flex flex-col gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="flex-1 overflow-hidden">
-                        <p id="track-title" class="text-lg font-semibold text-text-secondary truncate">No frequency selected</p>
-                        <p id="track-subtitle" class="text-sm text-text-muted truncate">Choose a track from the list to begin.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button id="prev-track" class="circle-btn">
-                            <span class="material-symbols-outlined text-2xl">skip_previous</span>
-                        </button>
-                        <button id="play-toggle" class="circle-btn circle-btn-primary size-12">
-                            <span id="play-toggle-icon" class="material-symbols-outlined text-3xl">play_arrow</span>
-                        </button>
-                        <button id="next-track" class="circle-btn">
-                            <span class="material-symbols-outlined text-2xl">skip_next</span>
-                        </button>
-                        <button id="replay-toggle" class="circle-btn" type="button" aria-pressed="false" aria-label="Toggle replay">
-                            <span id="replay-toggle-icon" class="material-symbols-outlined text-2xl">repeat</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="youtube-player-wrapper" class="youtube-wrapper hidden">
-                    <div id="youtube-player" class="youtube-player"></div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <button id="mute-toggle" type="button" class="flex items-center justify-center rounded-full size-10 text-text-muted hover:bg-white/10 transition-colors">
-                        <span id="mute-toggle-icon" class="material-symbols-outlined text-xl">volume_up</span>
-                    </button>
-                    <input id="volume-control" type="range" min="0" max="1" step="0.01" value="0.7" class="range-input flex-1"/>
-                </div>
-
-                <div class="flex flex-col gap-1">
-                    <input id="progress-control" type="range" min="0" max="100" value="0" class="range-input w-full"/>
-                    <div class="flex items-center justify-between text-xs text-text-muted">
-                        <span id="current-time">0:00</span>
-                        <span id="total-duration">0:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-3">
-                <div class="flex items-center justify-between gap-3">
-                    <h3 class="text-sm uppercase tracking-[0.35em] text-text-muted">Playlist</h3>
-                    <button id="add-track-btn" class="add-track-btn" type="button" aria-haspopup="dialog" aria-expanded="false">
-                        <span class="material-symbols-outlined text-lg">add</span>
-                    </button>
-                </div>
-                <ul id="playlist" class="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2"></ul>
-            </div>
-        </section>
-    </main>
+<div class="zen" data-zen-bar>
+  <button class="btn btn--main" type="button" data-zen-timer><svg><use href="#i-play" data-zen-timer-icon/></svg><span>Timer</span></button>
+  <button class="btn btn--ghost" type="button" data-zen-music><svg><use href="#i-play" data-zen-music-icon/></svg><span>Music</span></button>
+  <button class="icon-btn" type="button" data-zen aria-label="Leave fullscreen (F)" title="Leave fullscreen (F)"><svg><use href="#i-shrink"/></svg></button>
 </div>
 
-<audio id="audio-element" class="hidden" preload="metadata"></audio>
+<dialog class="sheet" id="library" aria-labelledby="library-title">
+  <header class="sheet__top">
+    <h2 id="library-title">Library</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+  </header>
+  <ul class="tracks" data-tracks></ul>
+  <form class="add" data-add novalidate>
+    <h3>Add a YouTube track</h3>
+    <label><span>Title</span><input name="title" type="text" maxlength="80" required autocomplete="off"></label>
+    <label><span>YouTube link</span><input name="url" type="url" inputmode="url" required autocomplete="off" placeholder="https://youtu.be/…"></label>
+    <p class="add__msg" data-add-msg role="status"></p>
+    <button class="btn btn--main btn--small" type="submit"><svg><use href="#i-plus"/></svg><span>Add</span></button>
+  </form>
+</dialog>
 
-<div id="add-track-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="add-track-title">
-    <div class="modal-backdrop" data-dismiss="modal"></div>
-    <div class="modal-panel" role="document">
-        <div class="modal-header">
-            <h2 id="add-track-title">Add YouTube Track</h2>
-            <button type="button" class="modal-close" data-dismiss="modal" aria-label="Close">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        <form id="add-track-form" class="modal-form" autocomplete="off" novalidate>
-            <div class="modal-field">
-                <label for="new-track-title" class="modal-label">Track name</label>
-                <input id="new-track-title" type="text" class="modal-input" placeholder="Focus Booster" required/>
-                <p class="modal-error" data-error="title"></p>
-            </div>
-            <div class="modal-field">
-                <label for="new-track-url" class="modal-label">YouTube link</label>
-                <input id="new-track-url" type="url" class="modal-input" placeholder="https://youtube.com/watch?v=..." required/>
-                <p class="modal-error" data-error="url"></p>
-            </div>
-            <div class="modal-actions">
-                <button type="submit" class="modal-submit">Save</button>
-                <button type="button" class="modal-cancel" data-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
+<dialog class="sheet" id="settings" aria-labelledby="settings-title">
+  <header class="sheet__top">
+    <h2 id="settings-title">Settings</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+  </header>
+  <form class="settings" data-settings>
+    <fieldset>
+      <legend>Lengths, in minutes</legend>
+      <div class="step"><span>Focus</span><button class="icon-btn" type="button" data-step="focus:-5" aria-label="5 minutes less focus"><svg><use href="#i-minus"/></svg></button><input name="focus" type="number" min="1" max="180" inputmode="numeric"><button class="icon-btn" type="button" data-step="focus:5" aria-label="5 minutes more focus"><svg><use href="#i-plus"/></svg></button></div>
+      <div class="step"><span>Short break</span><button class="icon-btn" type="button" data-step="short:-1" aria-label="1 minute less"><svg><use href="#i-minus"/></svg></button><input name="short" type="number" min="1" max="60" inputmode="numeric"><button class="icon-btn" type="button" data-step="short:1" aria-label="1 minute more"><svg><use href="#i-plus"/></svg></button></div>
+      <div class="step"><span>Long break</span><button class="icon-btn" type="button" data-step="long:-5" aria-label="5 minutes less"><svg><use href="#i-minus"/></svg></button><input name="long" type="number" min="1" max="90" inputmode="numeric"><button class="icon-btn" type="button" data-step="long:5" aria-label="5 minutes more"><svg><use href="#i-plus"/></svg></button></div>
+      <div class="step"><span>Focus rounds before a long break</span><button class="icon-btn" type="button" data-step="rounds:-1" aria-label="One round less"><svg><use href="#i-minus"/></svg></button><input name="rounds" type="number" min="1" max="12" inputmode="numeric"><button class="icon-btn" type="button" data-step="rounds:1" aria-label="One round more"><svg><use href="#i-plus"/></svg></button></div>
+    </fieldset>
+    <fieldset>
+      <legend>When a phase ends</legend>
+      <label class="switch"><input name="autoStart" type="checkbox"><span>Start the next one by itself</span></label>
+      <label class="switch"><input name="bell" type="checkbox"><span>Ring the bell</span></label>
+      <label class="switch"><input name="notify" type="checkbox"><span>Show a notification</span></label>
+    </fieldset>
+    <fieldset class="keys">
+      <legend>Keyboard</legend>
+      <dl>
+        <div><dt><kbd>Space</kbd></dt><dd>start / pause</dd></div>
+        <div><dt><kbd>R</kbd></dt><dd>reset</dd></div>
+        <div><dt><kbd>S</kbd></dt><dd>skip</dd></div>
+        <div><dt><kbd>F</kbd></dt><dd>fullscreen</dd></div>
+        <div><dt><kbd>M</kbd></dt><dd>music</dd></div>
+        <div><dt><kbd>N</kbd></dt><dd>next track</dd></div>
+      </dl>
+    </fieldset>
+  </form>
+  <p class="sheet__foot">Settings and today's rounds stay on this device. Made by <a href="https://demirkaan.com/" target="_blank" rel="noopener">Kaan Demir</a>.</p>
+</dialog>
 
 <script type="module" src="js/app.js"></script>
 </body>
